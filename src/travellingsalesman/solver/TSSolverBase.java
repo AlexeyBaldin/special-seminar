@@ -41,8 +41,6 @@ public class TSSolverBase implements TSSolver{
 
     protected ArrayList<Node> clustering(ArrayList<Node> nodes, int count) {
 
-        ПРОВЕРИТЬ РАСПРЕДЕЛЕНИЕ ПО КЛАСТЕРАМ
-
         if(count >= nodes.size()) {
             return nodes;
         } else {
@@ -70,15 +68,21 @@ public class TSSolverBase implements TSSolver{
                     lengths.add(Math.sqrt(Math.pow(center.getX() - node.getX(), 2) + Math.pow(center.getY() - node.getY(), 2)));
                 }
 
+//                for (int i = 0; i < lengths.size(); i++) {
+//                    System.out.println(node + " -> " + centers.get(i) + " : " + lengths.get(i));
+//                }
+
+
                 ArrayList<Integer> noChoose = new ArrayList<>();
                 do {
-                    int maxIndex = Util.getIndexMax(lengths, noChoose);
-                    Cluster cluster = (Cluster)clusters.get(maxIndex);
+                    int minIndex = Util.getIndexMin(lengths, noChoose);
+                    Cluster cluster = (Cluster)clusters.get(minIndex);
 
                     if(cluster.getNodeCount() >= nodesInOneCluster) {
-                        noChoose.add(maxIndex);
+                        noChoose.add(minIndex);
                     } else {
                         cluster.addNode(node);
+                        //System.out.println("add " + cluster.getCenter());
                         break;
                     }
                 } while(true);

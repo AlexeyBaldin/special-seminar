@@ -38,4 +38,20 @@ public class Util {
         return maxIndex;
     }
 
+    public static int getIndexMin(ArrayList<Double> doubles, ArrayList<Integer> noChoose) {
+        int minIndex = 0;
+        double min = Double.MAX_VALUE;
+        for (int i = 0; i < doubles.size(); i++) {
+            boolean choosing = true;
+            for (Integer integer : noChoose) {
+                choosing = choosing && integer != i;
+            }
+            if(min >= doubles.get(i) && choosing) {
+                min = doubles.get(i);
+                minIndex = i;
+            }
+        }
+        return minIndex;
+    }
+
 }
