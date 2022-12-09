@@ -33,7 +33,7 @@ public class TSReader extends AReader {
                         break;
                     }
                     String[] split = string.split(" ");
-                    coordinates.add(new Coordinates(Integer.parseInt(split[0]), Double.parseDouble(split[1]), Double.parseDouble(split[1])));
+                    coordinates.add(new Coordinates(Integer.parseInt(split[0]), Double.parseDouble(split[1]), Double.parseDouble(split[2])));
                 } while(true);
 
                 datasets.add(new TSDataset(size, coordinates, optimum, file.toString()));

@@ -6,9 +6,12 @@ import travellingsalesman.model.Node;
 import travellingsalesman.model.TSDataset;
 import travellingsalesman.model.TSResult;
 
+import javax.swing.*;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
+import java.util.Scanner;
 
 public class TSSolverBase implements TSSolver{
 
@@ -40,6 +43,7 @@ public class TSSolverBase implements TSSolver{
     }
 
     protected ArrayList<Node> clustering(ArrayList<Node> nodes, int count) {
+
 
         if(count >= nodes.size()) {
             return nodes;
@@ -90,6 +94,7 @@ public class TSSolverBase implements TSSolver{
 
             clusters.forEach(System.out::println);
 
+
             return clusters;
         }
     }
@@ -99,9 +104,7 @@ public class TSSolverBase implements TSSolver{
 
         ArrayList<Node> nodes = new ArrayList<>();
 
-        dataset.getCoordinates().forEach(coordinates -> {
-            nodes.add(new Node(coordinates.getNumber() ,coordinates.getX(), coordinates.getY()));
-        });
+        dataset.getCoordinates().forEach(coordinates -> nodes.add(new Node(coordinates.getNumber() ,coordinates.getX(), coordinates.getY())));
 
         this.clustering(nodes, 4);
 
@@ -114,3 +117,65 @@ public class TSSolverBase implements TSSolver{
         return new TSResult(null, -1);
     }
 }
+
+class MyFrame extends JFrame {
+
+    private final Canvas canvas;
+    public MyFrame() {
+        setSize(1200, 1200);
+        this.setLayout(new GridBagLayout());
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        Canvas canvas = new Canvas();
+        this.canvas = canvas;
+        this.canvas.setSize(1200, 1200);
+        this.add(canvas);
+        setVisible(true);
+    }
+
+    public void paintPoint(ArrayList<Node> nodes, Node center) {
+        Scanner scanner = new Scanner(System.in);
+
+        String s = scanner.nextLine();
+        if(s.equals("q")) {
+            Graphics graphics = this.canvas.getGraphics();
+            graphics.setColor(Color.BLACK);
+            nodes.forEach(node -> {
+//                System.out.println(node.getX()/50 + " " + node.getY()/50);
+                graphics.drawOval(((int) node.getX()/50), ((int) node.getY()/50), 3, 3);
+            });
+            graphics.fillRect(((int) center.getX()/50), ((int) center.getY()/50), 3, 3);
+        }
+        if(s.equals("w")) {
+            Graphics graphics = this.canvas.getGraphics();
+            graphics.setColor(Color.GREEN);
+            nodes.forEach(node -> {
+//                System.out.println(node.getX()/50 + " " + node.getY()/50);
+                graphics.drawOval(((int) node.getX()/50), ((int) node.getY()/50), 3, 3);
+            });
+            graphics.fillRect(((int) center.getX()/50), ((int) center.getY()/50), 3, 3);
+        }
+        if(s.equals("e")) {
+            Graphics graphics = this.canvas.getGraphics();
+            graphics.setColor(Color.BLUE);
+            nodes.forEach(node -> {
+//                System.out.println(node.getX()/50 + " " + node.getY()/50);
+                graphics.drawOval(((int) node.getX()/50), ((int) node.getY()/50), 3, 3);
+            });
+            graphics.fillRect(((int) center.getX()/50), ((int) center.getY()/50), 3, 3);
+        }
+        if(s.equals("r")) {
+            Graphics graphics = this.canvas.getGraphics();
+            graphics.setColor(Color.RED);
+            nodes.forEach(node -> {
+//                System.out.println(node.getX()/50 + " " + node.getY()/50);
+                graphics.drawOval(((int) node.getX()/50), ((int) node.getY()/50), 3, 3);
+            });
+            graphics.fillRect(((int) center.getX()/50), ((int) center.getY()/50), 3, 3);
+
+        }
+
+
+//        System.out.println("qwe");
+    }
+}
+
