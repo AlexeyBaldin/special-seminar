@@ -3,6 +3,7 @@ package travellingsalesman;
 import travellingsalesman.model.Node;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 public class Util {
 
@@ -52,6 +53,11 @@ public class Util {
             }
         }
         return minIndex;
+    }
+
+    private static final Random random = new Random(System.currentTimeMillis());
+    public static int getRandomInt(int bound) {
+        return random.nextInt(bound);
     }
 
 }

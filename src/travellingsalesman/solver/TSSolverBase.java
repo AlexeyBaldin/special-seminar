@@ -13,7 +13,7 @@ import java.util.Collections;
 import java.util.Random;
 import java.util.Scanner;
 
-public class TSSolverBase implements TSSolver{
+public class TSSolverBase implements TSSolver {
 
     private final int clusterCount;
     private final int maxDeep;
@@ -25,9 +25,8 @@ public class TSSolverBase implements TSSolver{
 
     protected Node findCenter(ArrayList<Node> nodes, ArrayList<Node> anotherCentres) {
 
-        if(anotherCentres.isEmpty()) {
-            Random random = new Random(System.currentTimeMillis());
-            return nodes.get(random.nextInt(nodes.size()));
+        if (anotherCentres.isEmpty()) {
+            return nodes.get(Util.getRandomInt(nodes.size()));
         } else {
             ArrayList<Double> lengthSum = new ArrayList<>();
             ArrayList<Node> nodesWithoutCenters = new ArrayList<>(nodes);
@@ -52,14 +51,14 @@ public class TSSolverBase implements TSSolver{
 
     protected ArrayList<Node> clustering(ArrayList<Node> nodes, int deep) {
 
-        if(this.clusterCount >= nodes.size() || this.maxDeep < deep) {
-            for (int i = 0; i < nodes.size(); i++) {
-                nodes.get(i).setDeep(deep + 1);
+        if (this.clusterCount >= nodes.size() || this.maxDeep < deep) {
+            for (Node node : nodes) {
+                node.setDeep(deep + 1);
             }
             return nodes;
         } else {
             ArrayList<Node> centers = new ArrayList<>();
-            for(int i = 0; i < this.clusterCount; i++) {
+            for (int i = 0; i < this.clusterCount; i++) {
                 Node center = findCenter(nodes, centers);
                 centers.add(center);
             }
@@ -67,7 +66,7 @@ public class TSSolverBase implements TSSolver{
             ArrayList<Node> clustersPreparation = new ArrayList<>();
             int nodesInOneCluster = nodes.size() % this.clusterCount == 0 ? nodes.size() / this.clusterCount : nodes.size() / this.clusterCount + 1;
 
-            for(int i = 0; i < this.clusterCount; i++) {
+            for (int i = 0; i < this.clusterCount; i++) {
                 clustersPreparation.add(new Cluster(centers.get(i)));
             }
 
@@ -90,16 +89,16 @@ public class TSSolverBase implements TSSolver{
                 ArrayList<Integer> noChoose = new ArrayList<>();
                 do {
                     int minIndex = Util.getIndexMin(lengths, noChoose);
-                    Cluster cluster = (Cluster)clustersPreparation.get(minIndex);
+                    Cluster cluster = (Cluster) clustersPreparation.get(minIndex);
 
-                    if(cluster.getNodeCount() >= nodesInOneCluster) {
+                    if (cluster.getNodeCount() >= nodesInOneCluster) {
                         noChoose.add(minIndex);
                     } else {
                         cluster.addNode(node);
                         //System.out.println("add " + cluster.getCenter());
                         break;
                     }
-                } while(true);
+                } while (true);
             });
 
             //clustersPreparation.forEach(System.out::println);
@@ -115,6 +114,7 @@ public class TSSolverBase implements TSSolver{
                 Cluster cluster = new Cluster(clusterP.getCenter());
                 cluster.setNodes(clustering);
                 cluster.setDeep(deep + 1);
+                cluster.findGravity();
                 clusters.add(cluster);
             });
 
@@ -123,19 +123,56 @@ public class TSSolverBase implements TSSolver{
         }
     }
 
+
+    private void reduction(Cluster cluster) {
+        ArrayList<Node> nodes = cluster.getNodes();
+        if(nodes.get(0).isCluster()) {
+            nodes.forEach(node -> {
+                Cluster cast = (Cluster)node;
+                reduction(cast);
+            });
+
+        } else {
+
+        }
+    }
+
+    private void pathNodes(ArrayList<Node> nodes) {
+        if(nodes.size() == 1) {
+            nodes.get(0).setNext(nodes.get(0));
+            nodes.get(0).setPrev(nodes.get(0));
+        } else if(nodes.size() == 2){
+            nodes.get(0).setPrev(nodes.get(1));
+            nodes.get(0).setNext(nodes.get(1));
+            nodes.get(1).setPrev(nodes.get(0));
+            nodes.get(1).setNext(nodes.get(0));
+        } else if(nodes.size() == 3) {
+            nodes.get(0).setPrev(nodes.get(2));
+            nodes.get(0).setNext(nodes.get(1));
+            nodes.get(1).setPrev(nodes.get(0));
+            nodes.get(1).setNext(nodes.get(2));
+            nodes.get(2).setPrev(nodes.get(1));
+            nodes.get(2).setNext(nodes.get(0));
+        } else {
+            int random = Util.getRandomInt(nodes.size());
+            //NEXT GOAL
+
+        }
+    }
+
     @Override
     public TSResult solve(TSDataset dataset) {
 
         ArrayList<Node> nodes = new ArrayList<>();
 
-        dataset.getCoordinates().forEach(coordinates -> nodes.add(new Node(coordinates.getNumber() ,coordinates.getX(), coordinates.getY())));
+        dataset.getCoordinates().forEach(coordinates -> nodes.add(new Node(coordinates.getNumber(), coordinates.getX(), coordinates.getY())));
 
 
         Cluster mainCluster = new Cluster(null);
         mainCluster.setNodes(clustering(nodes, 0));
         System.out.println(mainCluster);
 
-
+        reduction(mainCluster);
 
 
         return new TSResult(null, -1);
@@ -145,6 +182,7 @@ public class TSSolverBase implements TSSolver{
 class MyFrame extends JFrame {
 
     private final Canvas canvas;
+
     public MyFrame() {
         setSize(1200, 1200);
         this.setLayout(new GridBagLayout());
@@ -160,41 +198,41 @@ class MyFrame extends JFrame {
         Scanner scanner = new Scanner(System.in);
 
         String s = scanner.nextLine();
-        if(s.equals("q")) {
+        if (s.equals("q")) {
             Graphics graphics = this.canvas.getGraphics();
             graphics.setColor(Color.BLACK);
             nodes.forEach(node -> {
 //                System.out.println(node.getX()/50 + " " + node.getY()/50);
-                graphics.drawOval(((int) node.getX()/50), ((int) node.getY()/50), 3, 3);
+                graphics.drawOval(((int) node.getX() / 50), ((int) node.getY() / 50), 3, 3);
             });
-            graphics.fillRect(((int) center.getX()/50), ((int) center.getY()/50), 3, 3);
+            graphics.fillRect(((int) center.getX() / 50), ((int) center.getY() / 50), 3, 3);
         }
-        if(s.equals("w")) {
+        if (s.equals("w")) {
             Graphics graphics = this.canvas.getGraphics();
             graphics.setColor(Color.GREEN);
             nodes.forEach(node -> {
 //                System.out.println(node.getX()/50 + " " + node.getY()/50);
-                graphics.drawOval(((int) node.getX()/50), ((int) node.getY()/50), 3, 3);
+                graphics.drawOval(((int) node.getX() / 50), ((int) node.getY() / 50), 3, 3);
             });
-            graphics.fillRect(((int) center.getX()/50), ((int) center.getY()/50), 3, 3);
+            graphics.fillRect(((int) center.getX() / 50), ((int) center.getY() / 50), 3, 3);
         }
-        if(s.equals("e")) {
+        if (s.equals("e")) {
             Graphics graphics = this.canvas.getGraphics();
             graphics.setColor(Color.BLUE);
             nodes.forEach(node -> {
 //                System.out.println(node.getX()/50 + " " + node.getY()/50);
-                graphics.drawOval(((int) node.getX()/50), ((int) node.getY()/50), 3, 3);
+                graphics.drawOval(((int) node.getX() / 50), ((int) node.getY() / 50), 3, 3);
             });
-            graphics.fillRect(((int) center.getX()/50), ((int) center.getY()/50), 3, 3);
+            graphics.fillRect(((int) center.getX() / 50), ((int) center.getY() / 50), 3, 3);
         }
-        if(s.equals("r")) {
+        if (s.equals("r")) {
             Graphics graphics = this.canvas.getGraphics();
             graphics.setColor(Color.RED);
             nodes.forEach(node -> {
 //                System.out.println(node.getX()/50 + " " + node.getY()/50);
-                graphics.drawOval(((int) node.getX()/50), ((int) node.getY()/50), 3, 3);
+                graphics.drawOval(((int) node.getX() / 50), ((int) node.getY() / 50), 3, 3);
             });
-            graphics.fillRect(((int) center.getX()/50), ((int) center.getY()/50), 3, 3);
+            graphics.fillRect(((int) center.getX() / 50), ((int) center.getY() / 50), 3, 3);
 
         }
 
