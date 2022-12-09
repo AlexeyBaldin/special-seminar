@@ -4,15 +4,15 @@ import general.Dataset;
 
 import java.util.ArrayList;
 
-public class TravellingSalesmanDataset implements Dataset {
+public class TSDataset implements Dataset {
 
     private int size;
-    ArrayList<ArrayList<Double>> coordinates;
+    private ArrayList<Coordinates> coordinates;
     private final String file;
 
     private int optimum;
 
-    public TravellingSalesmanDataset(int size, ArrayList<ArrayList<Double>> coordinates, int optimum, String file) {
+    public TSDataset(int size, ArrayList<Coordinates> coordinates, int optimum, String file) {
         this.size = size;
         this.coordinates = coordinates;
         this.file = file;
@@ -27,11 +27,11 @@ public class TravellingSalesmanDataset implements Dataset {
         this.size = size;
     }
 
-    public ArrayList<ArrayList<Double>> getCoordinates() {
+    public ArrayList<Coordinates> getCoordinates() {
         return coordinates;
     }
 
-    public void setCoordinates(ArrayList<ArrayList<Double>> coordinates) {
+    public void setCoordinates(ArrayList<Coordinates> coordinates) {
         this.coordinates = coordinates;
     }
 

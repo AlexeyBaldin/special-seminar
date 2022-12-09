@@ -1,12 +1,9 @@
-import cuttingstock.CuttingStockStarter;
-import deliveryoptimization.DeliveryOptimizationStarter;
 import general.Starter;
-import orderselection.OrderSelectionStarter;
-import travellingsalesman.TravellingSalesmanStarter;
+import travellingsalesman.TSStarter;
 
 public class Main {
     public static void main(String[] args) {
-        Starter starter = new TravellingSalesmanStarter();
+        Starter starter = new TSStarter();
         starter.start();
     }
 }

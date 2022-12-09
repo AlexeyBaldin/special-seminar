@@ -2,14 +2,14 @@ package travellingsalesman;
 
 import general.AReader;
 import general.Dataset;
-import orderselection.model.OrderSelectionDataset;
-import travellingsalesman.model.TravellingSalesmanDataset;
+import travellingsalesman.model.Coordinates;
+import travellingsalesman.model.TSDataset;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-public class TravellingSalesmanReader  extends AReader {
+public class TSReader extends AReader {
     @Override
     public ArrayList<Dataset> getDatasets(String problem) {
         ArrayList<Dataset> datasets = new ArrayList<>();
@@ -26,20 +26,17 @@ public class TravellingSalesmanReader  extends AReader {
                 do {
                     string = scanner.nextLine();
                 } while(!string.startsWith("NODE_COORD_SECTION"));
-                ArrayList<ArrayList<Double>> coordinates = new ArrayList<>();
+                ArrayList<Coordinates> coordinates = new ArrayList<>();
                 do {
                     string = scanner.nextLine();
                     if("EOF".equals(string)) {
                         break;
                     }
                     String[] split = string.split(" ");
-                    ArrayList<Double> row = new ArrayList<>(2);
-                    row.add(Double.parseDouble(split[1]));
-                    row.add(Double.parseDouble(split[2]));
-                    coordinates.add(row);
+                    coordinates.add(new Coordinates(Integer.parseInt(split[0]), Double.parseDouble(split[1]), Double.parseDouble(split[1])));
                 } while(true);
 
-                datasets.add(new TravellingSalesmanDataset(size, coordinates, optimum, file.toString()));
+                datasets.add(new TSDataset(size, coordinates, optimum, file.toString()));
             } catch (FileNotFoundException e) {
                 throw new RuntimeException(e);
             }
