@@ -15,6 +15,14 @@ import java.util.Scanner;
 
 public class TSSolverBase implements TSSolver{
 
+    private final int clusterCount;
+    private final int maxDeep;
+
+    public TSSolverBase(int clusterCount, int maxDeep) {
+        this.clusterCount = clusterCount;
+        this.maxDeep = maxDeep;
+    }
+
     protected Node findCenter(ArrayList<Node> nodes, ArrayList<Node> anotherCentres) {
 
         if(anotherCentres.isEmpty()) {
@@ -42,23 +50,25 @@ public class TSSolverBase implements TSSolver{
         }
     }
 
-    protected ArrayList<Node> clustering(ArrayList<Node> nodes, int count) {
+    protected ArrayList<Node> clustering(ArrayList<Node> nodes, int deep) {
 
-
-        if(count >= nodes.size()) {
+        if(this.clusterCount >= nodes.size() || this.maxDeep < deep) {
+            for (int i = 0; i < nodes.size(); i++) {
+                nodes.get(i).setDeep(deep + 1);
+            }
             return nodes;
         } else {
             ArrayList<Node> centers = new ArrayList<>();
-            for(int i = 0; i < count; i++) {
+            for(int i = 0; i < this.clusterCount; i++) {
                 Node center = findCenter(nodes, centers);
                 centers.add(center);
             }
 
-            ArrayList<Node> clusters = new ArrayList<>();
-            int nodesInOneCluster = nodes.size() % count == 0 ? nodes.size() / count : nodes.size() / count + 1;
+            ArrayList<Node> clustersPreparation = new ArrayList<>();
+            int nodesInOneCluster = nodes.size() % this.clusterCount == 0 ? nodes.size() / this.clusterCount : nodes.size() / this.clusterCount + 1;
 
-            for(int i = 0; i < count; i++) {
-                clusters.add(new Cluster(centers.get(i)));
+            for(int i = 0; i < this.clusterCount; i++) {
+                clustersPreparation.add(new Cluster(centers.get(i)));
             }
 
             ArrayList<Node> nodesWithoutCenters = new ArrayList<>(nodes);
@@ -80,7 +90,7 @@ public class TSSolverBase implements TSSolver{
                 ArrayList<Integer> noChoose = new ArrayList<>();
                 do {
                     int minIndex = Util.getIndexMin(lengths, noChoose);
-                    Cluster cluster = (Cluster)clusters.get(minIndex);
+                    Cluster cluster = (Cluster)clustersPreparation.get(minIndex);
 
                     if(cluster.getNodeCount() >= nodesInOneCluster) {
                         noChoose.add(minIndex);
@@ -92,7 +102,21 @@ public class TSSolverBase implements TSSolver{
                 } while(true);
             });
 
-            clusters.forEach(System.out::println);
+            //clustersPreparation.forEach(System.out::println);
+
+            ArrayList<Node> clusters = new ArrayList<>();
+
+            clustersPreparation.forEach(clusterPreparation -> {
+                Cluster clusterP = (Cluster) clusterPreparation;
+                ArrayList<Node> nodes1 = clusterP.getNodes();
+
+                ArrayList<Node> clustering = clustering(nodes1, deep + 1);
+
+                Cluster cluster = new Cluster(clusterP.getCenter());
+                cluster.setNodes(clustering);
+                cluster.setDeep(deep + 1);
+                clusters.add(cluster);
+            });
 
 
             return clusters;
@@ -106,10 +130,10 @@ public class TSSolverBase implements TSSolver{
 
         dataset.getCoordinates().forEach(coordinates -> nodes.add(new Node(coordinates.getNumber() ,coordinates.getX(), coordinates.getY())));
 
-        this.clustering(nodes, 4);
 
-
-
+        Cluster mainCluster = new Cluster(null);
+        mainCluster.setNodes(clustering(nodes, 0));
+        System.out.println(mainCluster);
 
 
 

@@ -20,7 +20,7 @@ public class TSStarter implements Starter {
     @Override
     public void start() {
         TSDataset dataset = datasets.get(0);
-        TSTask task = new TSTask(dataset, new TSSolverBase());
+        TSTask task = new TSTask(dataset, new TSSolverBase(4, 32));
 
 
 

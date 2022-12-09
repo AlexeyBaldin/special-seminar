@@ -7,6 +7,7 @@ public class Cluster extends Node {
     private ArrayList<Node> nodes = new ArrayList<>();
     private Node center;
 
+
     public Cluster(Node center) {
         super();
         this.center = center;
@@ -37,9 +38,15 @@ public class Cluster extends Node {
         this.center = center;
     }
 
+
+
     @Override
     public String toString() {
-        return "Cluster{count=" + nodes.size() +
+        StringBuilder spaces = new StringBuilder();
+        for (int i = 0; i < deep; i++) {
+            spaces.append("  ");
+        }
+        return "\n" + spaces + "Cluster{size=" + nodes.size() +
                 ", nodes=" + nodes +
                 '}';
     }

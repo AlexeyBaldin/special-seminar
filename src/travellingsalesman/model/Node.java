@@ -8,6 +8,8 @@ public class Node {
     protected double x;
     protected double y;
 
+    protected int deep;
+
     public Node(int number, double x, double y) {
         this.number = number;
         this.x = x;
@@ -16,6 +18,14 @@ public class Node {
 
     public Node() {
 
+    }
+
+    public int getDeep() {
+        return deep;
+    }
+
+    public void setDeep(int deep) {
+        this.deep = deep;
     }
 
     public int getNumber() {
@@ -57,7 +67,11 @@ public class Node {
 
     @Override
     public String toString() {
-        return "Node{" +
+        StringBuilder spaces = new StringBuilder();
+        for (int i = 0; i < deep; i++) {
+            spaces.append("  ");
+        }
+        return  "\n" + spaces + "Node{" +
                 "number=" + number +
                 ", x=" + x +
                 ", y=" + y +
