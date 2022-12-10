@@ -130,10 +130,20 @@ public class TSSolverBase implements TSSolver {
             nodes.forEach(node -> {
                 Cluster cast = (Cluster)node;
                 reduction(cast);
+
+                //Соединение кластера внутри кластеров
+                //pathNodes(..)
+
+                //Соединение вершин в ближайших кластерах
+                //connectClusters(Cluster cluster1, Cluster cluster2)?
+                //Получаем все вершины в обоих кластерах, соединяем две ближайшие через кластеры
+                //cluster.getAllNodes()
+                //Если у вершины предыдущая вершина из другого кластера, значит сначала обходим её кластер, потом из последней идем в следующий
             });
 
         } else {
-
+            //Поиск пути между городами внутри последнего кластера
+            //pathNodes(..)
         }
     }
 
@@ -156,6 +166,8 @@ public class TSSolverBase implements TSSolver {
         } else {
             int random = Util.getRandomInt(nodes.size());
             //NEXT GOAL
+            //Соединять кластеры как вершины
+            //в двух соединенных кластерах брать ближайшие вершины и соединять
 
         }
     }
