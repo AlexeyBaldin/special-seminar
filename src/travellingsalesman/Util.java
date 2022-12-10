@@ -39,6 +39,17 @@ public class Util {
         return maxIndex;
     }
 
+    public static int getIndexMin(ArrayList<Double> doubles) {
+        int minIndex = 0;
+        double min = Double.MAX_VALUE;
+        for (int i = 0; i < doubles.size(); i++) {
+            if(min >= doubles.get(i)) {
+                min = doubles.get(i);
+                minIndex = i;
+            }
+        }
+        return minIndex;
+    }
     public static int getIndexMin(ArrayList<Double> doubles, ArrayList<Integer> noChoose) {
         int minIndex = 0;
         double min = Double.MAX_VALUE;

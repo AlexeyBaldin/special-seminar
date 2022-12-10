@@ -52,6 +52,10 @@ public class Cluster extends Node {
         this.center = center;
     }
 
+    public long getNumber() {
+        return center.number;
+    }
+
 
 
     @Override
@@ -60,8 +64,17 @@ public class Cluster extends Node {
         for (int i = 0; i < deep; i++) {
             spaces.append("  ");
         }
-        return "\n" + spaces + "Cluster{size=" + nodes.size() + ", x=" + x + ", y=" + y +
-                ", nodes=" + nodes +
-                '}';
+        if(prev != null && next != null) {
+            return "\n" + spaces + "Cluster{number=" + center.number + ", size=" + nodes.size() + ", x=" + x + ", y=" + y +
+                    ", prev=" + prev.getNumber() + ", next=" + next.getNumber() +
+                    ", nodes=" + nodes +
+                    '}';
+        } else {
+            return "\n" + spaces + "Cluster{size=" + nodes.size() + ", x=" + x + ", y=" + y +
+                    ", prev=-1, next=-1" +
+                    ", nodes=" + nodes +
+                    '}';
+        }
+
     }
 }

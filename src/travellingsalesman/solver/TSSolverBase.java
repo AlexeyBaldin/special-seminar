@@ -131,8 +131,9 @@ public class TSSolverBase implements TSSolver {
                 Cluster cast = (Cluster)node;
                 reduction(cast);
 
-                //Соединение кластера внутри кластеров
+                //Соединение кластеров внутри кластера
                 //pathNodes(..)
+                pathNodes(cluster.getNodes());
 
                 //Соединение вершин в ближайших кластерах
                 //connectClusters(Cluster cluster1, Cluster cluster2)?
@@ -144,6 +145,7 @@ public class TSSolverBase implements TSSolver {
         } else {
             //Поиск пути между городами внутри последнего кластера
             //pathNodes(..)
+            pathNodes(cluster.getNodes());
         }
     }
 
@@ -151,25 +153,42 @@ public class TSSolverBase implements TSSolver {
         if(nodes.size() == 1) {
             nodes.get(0).setNext(nodes.get(0));
             nodes.get(0).setPrev(nodes.get(0));
-        } else if(nodes.size() == 2){
-            nodes.get(0).setPrev(nodes.get(1));
-            nodes.get(0).setNext(nodes.get(1));
-            nodes.get(1).setPrev(nodes.get(0));
-            nodes.get(1).setNext(nodes.get(0));
-        } else if(nodes.size() == 3) {
-            nodes.get(0).setPrev(nodes.get(2));
-            nodes.get(0).setNext(nodes.get(1));
-            nodes.get(1).setPrev(nodes.get(0));
-            nodes.get(1).setNext(nodes.get(2));
-            nodes.get(2).setPrev(nodes.get(1));
-            nodes.get(2).setNext(nodes.get(0));
         } else {
             int random = Util.getRandomInt(nodes.size());
+
+            Node first = nodes.get(random);
+            ArrayList<Node> tempNodes = new ArrayList<>(nodes);
+            tempNodes.remove(first);
+            int size = tempNodes.size();
+            Node temp1 = first;
+            Node temp2 = null;
+            for (int i = 0; i < size; i++) {
+                temp2 = findNearest(temp1, tempNodes);
+                temp1.setNext(temp2);
+                temp2.setPrev(temp1);
+                temp1 = temp2;
+                tempNodes.remove(temp1);
+            }
+
+            if (temp2 != null) {
+                temp2.setNext(first);
+                first.setPrev(temp2);
+            }
+
+
             //NEXT GOAL
             //Соединять кластеры как вершины
             //в двух соединенных кластерах брать ближайшие вершины и соединять
 
         }
+    }
+
+    private Node findNearest(Node node, ArrayList<Node> nodes) {
+        ArrayList<Double> lengths = new ArrayList<>();
+        for (Node value : nodes) {
+            lengths.add(Util.getLength(node, value));
+        }
+        return nodes.get(Util.getIndexMin(lengths));
     }
 
     @Override
@@ -185,6 +204,8 @@ public class TSSolverBase implements TSSolver {
         System.out.println(mainCluster);
 
         reduction(mainCluster);
+
+        System.out.println(mainCluster);
 
 
         return new TSResult(null, -1);

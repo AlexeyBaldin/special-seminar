@@ -4,7 +4,7 @@ import java.util.Objects;
 
 public class Node {
 
-    private int number;
+    protected long number;
     protected double x;
     protected double y;
 
@@ -51,11 +51,11 @@ public class Node {
         this.deep = deep;
     }
 
-    public int getNumber() {
+    public long getNumber() {
         return number;
     }
 
-    public void setNumber(int number) {
+    public void setNumber(long number) {
         this.number = number;
     }
 
@@ -94,10 +94,23 @@ public class Node {
         for (int i = 0; i < deep; i++) {
             spaces.append("  ");
         }
-        return  "\n" + spaces + "Node{" +
-                "number=" + number +
-                ", x=" + x +
-                ", y=" + y +
-                '}';
+
+        if(prev != null && next != null) {
+            return  "\n" + spaces + "Node{" +
+                    "number=" + number +
+                    ", x=" + x +
+                    ", y=" + y +
+                    ", prev=" + prev.getNumber() +
+                    ", next=" + next.getNumber() +
+                    '}';
+        } else {
+            return  "\n" + spaces + "Node{" +
+                    "number=" + number +
+                    ", x=" + x +
+                    ", y=" + y +
+                    ", prev=-1" +
+                    ", next=-1" +
+                    '}';
+        }
     }
 }
