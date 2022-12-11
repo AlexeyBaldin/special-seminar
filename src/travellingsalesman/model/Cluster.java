@@ -1,6 +1,7 @@
 package travellingsalesman.model;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 public class Cluster extends Node {
 
@@ -76,5 +77,19 @@ public class Cluster extends Node {
                     '}';
         }
 
+    }
+
+    public ArrayList<Node> getAllNodes() {
+        ArrayList<Node> allNodes = new ArrayList<>();
+
+        if(this.nodes.get(0).isCluster()) {
+            this.nodes.forEach(cluster -> {
+                allNodes.addAll(((Cluster)cluster).getAllNodes());
+            });
+        } else {
+            allNodes.addAll(this.nodes);
+        }
+
+        return allNodes;
     }
 }

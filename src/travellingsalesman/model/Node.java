@@ -13,6 +13,8 @@ public class Node {
     protected Node prev;
     protected Node next;
 
+    private boolean fromCluster = false;
+
     public Node getPrev() {
         return prev;
     }
@@ -41,6 +43,14 @@ public class Node {
 
     public boolean isCluster() {
         return false;
+    }
+
+    public boolean isGoFromCluster() {
+        return fromCluster;
+    }
+
+    public void setFromCluster(boolean fromCluster) {
+        this.fromCluster = fromCluster;
     }
 
     public int getDeep() {
