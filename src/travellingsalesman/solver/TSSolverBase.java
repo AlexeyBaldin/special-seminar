@@ -1,5 +1,6 @@
 package travellingsalesman.solver;
 
+import javafx.util.Pair;
 import travellingsalesman.Util;
 import travellingsalesman.model.Cluster;
 import travellingsalesman.model.Node;
@@ -124,16 +125,17 @@ public class TSSolverBase implements TSSolver {
     }
 
 
-    private void reduction(Cluster cluster) {
+    protected void reduction(Cluster cluster) {
         ArrayList<Node> nodes = cluster.getNodes();
         if(nodes.get(0).isCluster()) {
+            ArrayList<Cluster> clusters = new ArrayList<>();
             nodes.forEach(node -> {
                 Cluster cast = (Cluster)node;
                 reduction(cast);
 
-                //Соединение кластеров внутри кластера
-                //pathNodes(..)
                 pathNodes(cluster.getNodes());
+
+                clusters.add(cast);
 
                 //Соединение вершин в ближайших кластерах
                 //connectClusters(Cluster cluster1, Cluster cluster2)?
@@ -141,6 +143,7 @@ public class TSSolverBase implements TSSolver {
                 //cluster.getAllNodes()
                 //Если у вершины предыдущая вершина из другого кластера, значит сначала обходим её кластер, потом из последней идем в следующий
             });
+            connectClusters(clusters);
 
         } else {
             //Поиск пути между городами внутри последнего кластера
@@ -149,14 +152,67 @@ public class TSSolverBase implements TSSolver {
         }
     }
 
-    private void pathNodes(ArrayList<Node> nodes) {
+    protected void connectClusters(ArrayList<Cluster> clusters) {
+
+        Cluster temp1 = clusters.get(0);
+        Cluster temp2;
+
+        System.out.println("===========");
+        for (int i = 0; i < clusters.size(); i++) {
+            temp2 = (Cluster)temp1.getNext();
+
+            connectTwoClusters(temp1, temp2);
+
+            temp1 = temp2;
+        }
+        System.out.println("===========");
+
+    }
+
+    protected void connectTwoClusters(Cluster cluster1, Cluster cluster2) {
+        class NodesPair extends Pair<Node, Node> {
+            public NodesPair(Node key, Node value) {
+                super(key, value);
+            }
+            public double getLength() {
+                return Util.getLength(this.getKey(), this.getValue());
+            }
+
+            public void connect() {
+                this.getKey().setNext(this.getValue());
+                this.getValue().setPrev(this.getKey());
+            }
+        }
+
+        ArrayList<NodesPair> pairs = new ArrayList<>();
+        cluster1.getNodes().forEach(node1 -> {
+            cluster2.getNodes().forEach(node2 -> {
+                pairs.add(new NodesPair(node1, node2));
+            });
+        });
+
+        int minIndex = 0;
+        double minLength = pairs.get(0).getLength();
+        for (int i = 1; i < pairs.size(); i++) {
+            if(pairs.get(i).getLength() < minLength) {
+                minIndex = i;
+                minLength = pairs.get(i).getLength();
+            }
+        }
+
+        pairs.get(minIndex).connect();
+    }
+
+    protected void pathNodes(ArrayList<Node> nodes) {
         if(nodes.size() == 1) {
             nodes.get(0).setNext(nodes.get(0));
             nodes.get(0).setPrev(nodes.get(0));
         } else {
-            int random = Util.getRandomInt(nodes.size());
 
-            Node first = nodes.get(random);
+//            int random = Util.getRandomInt(nodes.size());
+//            Node first = nodes.get(random);
+
+            Node first = nodes.get(0);
             ArrayList<Node> tempNodes = new ArrayList<>(nodes);
             tempNodes.remove(first);
             int size = tempNodes.size();
@@ -175,20 +231,15 @@ public class TSSolverBase implements TSSolver {
                 first.setPrev(temp2);
             }
 
-
-            //NEXT GOAL
-            //Соединять кластеры как вершины
-            //в двух соединенных кластерах брать ближайшие вершины и соединять
-
         }
     }
 
-    private Node findNearest(Node node, ArrayList<Node> nodes) {
+    protected Node findNearest(Node node, ArrayList<Node> anotherNodes) {
         ArrayList<Double> lengths = new ArrayList<>();
-        for (Node value : nodes) {
+        for (Node value : anotherNodes) {
             lengths.add(Util.getLength(node, value));
         }
-        return nodes.get(Util.getIndexMin(lengths));
+        return anotherNodes.get(Util.getIndexMin(lengths));
     }
 
     @Override
@@ -201,11 +252,10 @@ public class TSSolverBase implements TSSolver {
 
         Cluster mainCluster = new Cluster(null);
         mainCluster.setNodes(clustering(nodes, 0));
-        System.out.println(mainCluster);
 
         reduction(mainCluster);
 
-        System.out.println(mainCluster);
+        //System.out.println(mainCluster);
 
 
         return new TSResult(null, -1);
