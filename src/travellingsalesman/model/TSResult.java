@@ -4,27 +4,27 @@ import java.util.ArrayList;
 
 public class TSResult {
 
-    private ArrayList<Integer> order;
-    private int length;
+    private ArrayList<Long> order;
+    private double length;
 
-    public TSResult(ArrayList<Integer> order, int length) {
+    public TSResult(ArrayList<Long> order, long length) {
         this.order = order;
         this.length = length;
     }
 
-    public ArrayList<Integer> getOrder() {
+    public ArrayList<Long> getOrder() {
         return order;
     }
 
-    public void setOrder(ArrayList<Integer> order) {
+    public void setOrder(ArrayList<Long> order) {
         this.order = order;
     }
 
-    public int getLength() {
+    public double getLength() {
         return length;
     }
 
-    public void setLength(int length) {
+    public void setLength(double length) {
         this.length = length;
     }
 

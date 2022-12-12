@@ -6,14 +6,14 @@ import travellingsalesman.solver.TSSolver;
 
 public class TSTask {
 
-    private TSResult result;
+    private final TSResult result;
 
     public TSTask(TSDataset dataset, TSSolver solver) {
 
         this.result = solver.solve(dataset);
     }
 
-    public int getLength() {
+    public double getLength() {
         return this.result.getLength();
     }
 

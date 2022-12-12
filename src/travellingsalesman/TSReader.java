@@ -17,7 +17,7 @@ public class TSReader extends AReader {
         initFiles(problem).forEach(file -> {
             try {
                 Scanner scanner = new Scanner(file);
-                int optimum = scanner.nextInt();
+                double optimum = scanner.nextDouble();
                 String string;
                 do {
                     string = scanner.nextLine();

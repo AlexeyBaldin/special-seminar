@@ -10,9 +10,9 @@ public class TSDataset implements Dataset {
     private ArrayList<Coordinates> coordinates;
     private final String file;
 
-    private int optimum;
+    private double optimum;
 
-    public TSDataset(int size, ArrayList<Coordinates> coordinates, int optimum, String file) {
+    public TSDataset(int size, ArrayList<Coordinates> coordinates, double optimum, String file) {
         this.size = size;
         this.coordinates = coordinates;
         this.file = file;
@@ -35,11 +35,11 @@ public class TSDataset implements Dataset {
         this.coordinates = coordinates;
     }
 
-    public int getOptimum() {
+    public double getOptimum() {
         return optimum;
     }
 
-    public void setOptimum(int optimum) {
+    public void setOptimum(double optimum) {
         this.optimum = optimum;
     }
 

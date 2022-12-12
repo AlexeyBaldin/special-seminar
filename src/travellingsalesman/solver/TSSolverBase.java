@@ -2,10 +2,7 @@ package travellingsalesman.solver;
 
 import javafx.util.Pair;
 import travellingsalesman.Util;
-import travellingsalesman.model.Cluster;
-import travellingsalesman.model.Node;
-import travellingsalesman.model.TSDataset;
-import travellingsalesman.model.TSResult;
+import travellingsalesman.model.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,11 +15,12 @@ public class TSSolverBase implements TSSolver {
 
     private final int clusterCount;
     private final int maxDeep;
+    private final int maxNodesInCluster;
 
-
-    public TSSolverBase(int clusterCount, int maxDeep) {
+    public TSSolverBase(int clusterCount, int maxDeep, int maxNodesInCluster) {
         this.clusterCount = clusterCount;
         this.maxDeep = maxDeep;
+        this.maxNodesInCluster = maxNodesInCluster;
     }
 
     protected void findCenter(ArrayList<Node> nodes, ArrayList<Node> anotherCentres) {
@@ -72,7 +70,7 @@ public class TSSolverBase implements TSSolver {
 
     protected ArrayList<Node> clustering(ArrayList<Node> nodes, int deep) {
 
-        if (this.clusterCount >= nodes.size() || this.maxDeep < deep) {
+        if (this.maxNodesInCluster > nodes.size() || this.maxDeep < deep) {
             for (Node node : nodes) {
                 node.setDeep(deep + 1);
             }
@@ -203,31 +201,6 @@ public class TSSolverBase implements TSSolver {
 
     }
 
-    class NodesPair extends Pair<Node, Node> {
-        public NodesPair(Node key, Node value) {
-            super(key, value);
-        }
-
-        public double getLength() {
-            return Util.getLength(this.getKey(), this.getValue());
-        }
-
-        public void connect() {
-            Node key = this.getKey();
-            Node value = this.getValue();
-
-            Node oldValueFirst = key.getNext();
-
-            key.setNext(value);
-
-            Node oldKey = value.getPrev();
-            value.setPrev(key);
-
-            oldKey.setNext(oldValueFirst);
-            oldValueFirst.setPrev(oldKey);
-        }
-    }
-
     protected void connectTwoClusters(Cluster cluster1, Cluster cluster2) {
 
         ArrayList<NodesPair> pairs = new ArrayList<>();
@@ -267,7 +240,7 @@ public class TSSolverBase implements TSSolver {
 
     }
 
-    public void connectPairs(NodesPair pair1, NodesPair pair2) {
+    protected void connectPairs(NodesPair pair1, NodesPair pair2) {
 
         if(pair1.getKey().getNext().equals(pair2.getKey())) {
             if(pair1.getValue().getNext().equals(pair2.getValue())) {
@@ -348,36 +321,35 @@ public class TSSolverBase implements TSSolver {
 
 
         Cluster mainCluster = new Cluster(null);
-        mainCluster.setNodes(clustering(nodes, 0));
+        mainCluster.setNodes(clustering(nodes, 1));
 
         reduction(mainCluster);
 
 
         //System.out.println(mainCluster.getAllNodes());
         ArrayList<Node> allNodes = mainCluster.getAllNodes();
-        Node first = allNodes.get(0);
-        Node next1 = first;
+        Node next1 = allNodes.get(0);
         Node next2;
         ArrayList<Integer> test = new ArrayList<>();
         for (int i = 0; i < allNodes.size(); i++) {
             test.add(0);
         }
 
+        ArrayList<Long> order = new ArrayList<>();
         int length = 0;
         for (int i = 0; i < allNodes.size(); i++) {
             test.set((int) next1.getNumber() - 1, 5);
             next2 = next1.getNext();
             length += Util.getLength(next1, next2);
             //System.out.println(next1.getNumber() + " -> " + next2.getNumber() + " = " + Util.getLength(next1, next2));
+            order.add(next1.getNumber());
             next1 = next2;
-
         }
-        System.out.println(test);
-        System.out.println(length);
+//        System.out.println(test);
+//        System.out.println(length);
         //System.out.println(mainCluster);
 
-
-        return new TSResult(null, -1);
+        return new TSResult(order, length);
     }
 }
 
