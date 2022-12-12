@@ -1,26 +1,23 @@
 package travellingsalesman.solver;
 
-import javafx.util.Pair;
 import travellingsalesman.Util;
 import travellingsalesman.model.*;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Random;
 import java.util.Scanner;
 
 public class TSSolverBase implements TSSolver {
 
-    private final int clusterCount;
-    private final int maxDeep;
-    private final int maxNodesInCluster;
+    protected final int clusterCount;
+    protected final int maxDeep;
+    protected final int reductionStopper;
 
-    public TSSolverBase(int clusterCount, int maxDeep, int maxNodesInCluster) {
+    public TSSolverBase(int clusterCount, int maxDeep, int reductionStopper) {
         this.clusterCount = clusterCount;
         this.maxDeep = maxDeep;
-        this.maxNodesInCluster = maxNodesInCluster;
+        this.reductionStopper = reductionStopper;
     }
 
     protected void findCenter(ArrayList<Node> nodes, ArrayList<Node> anotherCentres) {
@@ -70,16 +67,18 @@ public class TSSolverBase implements TSSolver {
 
     protected ArrayList<Node> clustering(ArrayList<Node> nodes, int deep) {
 
-        if (this.maxNodesInCluster > nodes.size() || this.maxDeep < deep) {
+        if (this.reductionStopper > nodes.size() || this.maxDeep < deep) {
             for (Node node : nodes) {
                 node.setDeep(deep + 1);
             }
             return nodes;
         } else {
             ArrayList<Node> centers = new ArrayList<>();
-            for (int i = 1; i < this.clusterCount; i++) {
+
+            while(centers.size() < this.clusterCount) {
                 findCenter(nodes, centers);
             }
+
 
             ArrayList<Node> clustersPreparation = new ArrayList<>();
             int nodesInOneCluster = nodes.size() % this.clusterCount == 0 ? nodes.size() / this.clusterCount : nodes.size() / this.clusterCount + 1;
@@ -99,11 +98,6 @@ public class TSSolverBase implements TSSolver {
                     lengths.add(Math.sqrt(Math.pow(center.getX() - node.getX(), 2) + Math.pow(center.getY() - node.getY(), 2)));
                 }
 
-//                for (int i = 0; i < lengths.size(); i++) {
-//                    System.out.println(node + " -> " + centers.get(i) + " : " + lengths.get(i));
-//                }
-
-
                 ArrayList<Integer> noChoose = new ArrayList<>();
                 do {
                     int minIndex = Util.getIndexMin(lengths, noChoose);
@@ -113,13 +107,11 @@ public class TSSolverBase implements TSSolver {
                         noChoose.add(minIndex);
                     } else {
                         cluster.addNode(node);
-                        //System.out.println("add " + cluster.getCenter());
                         break;
                     }
                 } while (true);
             });
 
-            //clustersPreparation.forEach(System.out::println);
 
             ArrayList<Node> clusters = new ArrayList<>();
 
@@ -182,7 +174,6 @@ public class TSSolverBase implements TSSolver {
     }
 
     protected void connectClusters(ArrayList<Cluster> clusters) {
-
         Cluster temp1 = clusters.get(0);
         Cluster temp2;
 
@@ -196,9 +187,6 @@ public class TSSolverBase implements TSSolver {
             temp1 = temp2;
         }
         //System.out.println("===========");
-
-
-
     }
 
     protected void connectTwoClusters(Cluster cluster1, Cluster cluster2) {
@@ -241,7 +229,6 @@ public class TSSolverBase implements TSSolver {
     }
 
     protected void connectPairs(NodesPair pair1, NodesPair pair2) {
-
         if(pair1.getKey().getNext().equals(pair2.getKey())) {
             if(pair1.getValue().getNext().equals(pair2.getValue())) {
                 pair1.getValue().invert();
@@ -279,9 +266,6 @@ public class TSSolverBase implements TSSolver {
             nodes.get(0).setNext(nodes.get(0));
             nodes.get(0).setPrev(nodes.get(0));
         } else {
-
-//            int random = Util.getRandomInt(nodes.size());
-//            Node first = nodes.get(random);
 
             Node first = nodes.get(0);
             ArrayList<Node> tempNodes = new ArrayList<>(nodes);
@@ -345,7 +329,7 @@ public class TSSolverBase implements TSSolver {
             order.add(next1.getNumber());
             next1 = next2;
         }
-//        System.out.println(test);
+        //System.out.println(test);
 //        System.out.println(length);
         //System.out.println(mainCluster);
 

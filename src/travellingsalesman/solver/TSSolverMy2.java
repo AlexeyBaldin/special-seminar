@@ -6,8 +6,8 @@ import travellingsalesman.model.Node;
 
 import java.util.ArrayList;
 
-public class TSSolverMy extends TSSolverBase{
-    public TSSolverMy(int clusterCount, int maxDeep, int reductionStopper) {
+public class TSSolverMy2 extends TSSolverBase{
+    public TSSolverMy2(int clusterCount, int maxDeep, int reductionStopper) {
         super(clusterCount, maxDeep, reductionStopper);
     }
 
@@ -21,14 +21,14 @@ public class TSSolverMy extends TSSolverBase{
             return nodes;
         } else {
             ArrayList<Node> centers = new ArrayList<>();
-            while(centers.size() < this.clusterCount && nodes.size() > centers.size()) {
+            while(centers.size() < this.clusterCount) {
                 findCenter(nodes, centers);
             }
 
             ArrayList<Node> clustersPreparation = new ArrayList<>();
-            int nodesInOneCluster = nodes.size() % centers.size() == 0 ? nodes.size() / centers.size() : nodes.size() / centers.size() + 1;
+            int nodesInOneCluster = nodes.size() % this.clusterCount == 0 ? nodes.size() / this.clusterCount : nodes.size() / this.clusterCount + 1;
 
-            for (int i = 0; i < centers.size(); i++) {
+            for (int i = 0; i < this.clusterCount; i++) {
                 clustersPreparation.add(new Cluster(centers.get(i)));
             }
 
