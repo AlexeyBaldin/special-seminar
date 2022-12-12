@@ -18,6 +18,14 @@ public class Cluster extends Node {
         this.y /= nodes.size();
     }
 
+    public void invertCluster() {
+        getAllNodes().forEach(node -> {
+            Node temp = node.next;
+            node.next = node.prev;
+            node.prev = temp;
+        });
+    }
+
     public Cluster(Node center) {
         super();
         this.center = center;

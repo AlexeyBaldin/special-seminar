@@ -19,15 +19,13 @@ public class TSStarter implements Starter {
 
     @Override
     public void start() {
-        TSDataset dataset = datasets.get(0);
-        TSTask task = new TSTask(dataset, new TSSolverBase(4, 32));
+//        TSDataset dataset = datasets.get(0);
+//        TSTask task = new TSTask(dataset, new TSSolverBase(4, 32));
 
 
-
-//        datasets.forEach(dataset -> {
-//            System.out.println(dataset.getFile());
-//
-//
-//        });
+        datasets.forEach(dataset -> {
+            System.out.println(dataset.getFile());
+            TSTask task = new TSTask(dataset, new TSSolverBase(2, 4));
+        });
     }
 }

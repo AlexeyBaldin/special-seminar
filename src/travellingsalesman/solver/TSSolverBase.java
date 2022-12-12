@@ -19,15 +19,35 @@ public class TSSolverBase implements TSSolver {
     private final int clusterCount;
     private final int maxDeep;
 
+
     public TSSolverBase(int clusterCount, int maxDeep) {
         this.clusterCount = clusterCount;
         this.maxDeep = maxDeep;
     }
 
-    protected Node findCenter(ArrayList<Node> nodes, ArrayList<Node> anotherCentres) {
+    protected void findCenter(ArrayList<Node> nodes, ArrayList<Node> anotherCentres) {
 
         if (anotherCentres.isEmpty()) {
-            return nodes.get(Util.getRandomInt(nodes.size()));
+            //return nodes.get(Util.getRandomInt(nodes.size()));
+            Node firstCenter = nodes.get(0);
+            Node secondCenter = nodes.get(1);
+
+            double maxLength = 0;
+            for (Node node1 :
+                    nodes) {
+                for (Node node2:
+                     nodes) {
+                    double length = Util.getLength(node1, node2);
+                    if(length > maxLength) {
+                        firstCenter = node1;
+                        secondCenter = node2;
+                    }
+                }
+            }
+
+
+            anotherCentres.add(firstCenter);
+            anotherCentres.add(secondCenter);
         } else {
             ArrayList<Double> lengthSum = new ArrayList<>();
             ArrayList<Node> nodesWithoutCenters = new ArrayList<>(nodes);
@@ -46,7 +66,7 @@ public class TSSolverBase implements TSSolver {
             });
 
 
-            return nodesWithoutCenters.get(Util.getIndexMax(lengthSum));
+            anotherCentres.add(nodesWithoutCenters.get(Util.getIndexMax(lengthSum)));
         }
     }
 
@@ -59,9 +79,8 @@ public class TSSolverBase implements TSSolver {
             return nodes;
         } else {
             ArrayList<Node> centers = new ArrayList<>();
-            for (int i = 0; i < this.clusterCount; i++) {
-                Node center = findCenter(nodes, centers);
-                centers.add(center);
+            for (int i = 1; i < this.clusterCount; i++) {
+                findCenter(nodes, centers);
             }
 
             ArrayList<Node> clustersPreparation = new ArrayList<>();
@@ -127,13 +146,18 @@ public class TSSolverBase implements TSSolver {
 
     protected void reduction(Cluster cluster) {
         ArrayList<Node> nodes = cluster.getNodes();
-        if(nodes.get(0).isCluster()) {
+        if (nodes.get(0).isCluster()) {
             ArrayList<Cluster> clusters = new ArrayList<>();
             nodes.forEach(node -> {
-                Cluster cast = (Cluster)node;
+                Cluster cast = (Cluster) node;
+
+                //Соединяем кластеры как вершины
+                pathNodes(cluster.getNodes());
+                //System.out.println(cluster);
+
+                //Спускаемся на следующий уровень
                 reduction(cast);
 
-                pathNodes(cluster.getNodes());
 
                 clusters.add(cast);
 
@@ -143,12 +167,18 @@ public class TSSolverBase implements TSSolver {
                 //cluster.getAllNodes()
                 //Если у вершины предыдущая вершина из другого кластера, значит сначала обходим её кластер, потом из последней идем в следующий
             });
+
+
             connectClusters(clusters);
-            System.out.println(clusters);
+//            System.out.println("============");
+//            System.out.println(cluster);
+//            System.out.println("============");
 
         } else {
             //Поиск пути между городами внутри последнего кластера
             //pathNodes(..)
+
+
             pathNodes(cluster.getNodes());
         }
     }
@@ -158,15 +188,17 @@ public class TSSolverBase implements TSSolver {
         Cluster temp1 = clusters.get(0);
         Cluster temp2;
 
-//        System.out.println("===========");
-        for (int i = 0; i < clusters.size(); i++) {
-            temp2 = (Cluster)temp1.getNext();
+        //System.out.println("===========");
+        for (int i = 1; i < clusters.size(); i++) {
+            temp2 = (Cluster) temp1.getNext();
 
             connectTwoClusters(temp1, temp2);
+            //System.out.println("temp1" + temp1 + "  temp2" + temp2);
 
             temp1 = temp2;
         }
-//        System.out.println("===========");
+        //System.out.println("===========");
+
 
 
     }
@@ -175,20 +207,31 @@ public class TSSolverBase implements TSSolver {
         public NodesPair(Node key, Node value) {
             super(key, value);
         }
+
         public double getLength() {
             return Util.getLength(this.getKey(), this.getValue());
         }
+
         public void connect() {
-            this.getKey().setNext(this.getValue());
-            this.getValue().getPrev().setNext(null);
-            this.getValue().setPrev(this.getKey());
+            Node key = this.getKey();
+            Node value = this.getValue();
+
+            Node oldValueFirst = key.getNext();
+
+            key.setNext(value);
+
+            Node oldKey = value.getPrev();
+            value.setPrev(key);
+
+            oldKey.setNext(oldValueFirst);
+            oldValueFirst.setPrev(oldKey);
         }
     }
 
     protected void connectTwoClusters(Cluster cluster1, Cluster cluster2) {
 
         ArrayList<NodesPair> pairs = new ArrayList<>();
-        if(cluster1.getAllNodes().size() == 1) {
+        if (cluster1.getAllNodes().size() == 1) {
             for (Node node2 :
                     cluster2.getAllNodes()) {
                 pairs.add(new NodesPair(cluster1.getCenter(), node2));
@@ -196,7 +239,7 @@ public class TSSolverBase implements TSSolver {
         } else {
             for (Node node1 :
                     cluster1.getAllNodes()) {
-                if(node1.isGoFromCluster()) {
+                if (node1.isFinish()) {
                     continue;
                 }
                 for (Node node2 :
@@ -206,30 +249,60 @@ public class TSSolverBase implements TSSolver {
             }
         }
 
+        NodesPair nearestPair1 = findNearestPair(pairs);
+        Node keyKey = nearestPair1.getKey().getPrev();
+        Node keyValue = nearestPair1.getKey().getNext();
+        Node valueKey = nearestPair1.getValue().getPrev();
+        Node valueValue = nearestPair1.getValue().getNext();
 
+        pairs.clear();
+        pairs.add(new NodesPair(keyKey, valueKey));
+        pairs.add(new NodesPair(keyKey, valueValue));
+        pairs.add(new NodesPair(keyValue, valueKey));
+        pairs.add(new NodesPair(keyValue, valueKey));
+
+        NodesPair nearestPair2 = findNearestPair(pairs);
+
+        connectPairs(nearestPair1, nearestPair2);
+
+    }
+
+    public void connectPairs(NodesPair pair1, NodesPair pair2) {
+
+        if(pair1.getKey().getNext().equals(pair2.getKey())) {
+            if(pair1.getValue().getNext().equals(pair2.getValue())) {
+                pair1.getValue().invert();
+            }
+        } else {
+            if(pair1.getValue().getNext().equals(pair2.getValue())) {
+                pair1.getKey().invert();
+                pair1.getValue().invert();
+            } else {
+                pair1.getKey().invert();
+            }
+        }
+
+        pair1.getKey().setNext(pair1.getValue());
+        pair1.getValue().setPrev(pair1.getKey());
+
+        pair2.getValue().setNext(pair2.getKey());
+        pair2.getKey().setPrev(pair2.getValue());
+    }
+
+    protected NodesPair findNearestPair(ArrayList<NodesPair> pairs) {
         int minIndex = 0;
         double minLength = pairs.get(0).getLength();
         for (int i = 1; i < pairs.size(); i++) {
-            if(pairs.get(i).getLength() < minLength) {
+            if (pairs.get(i).getLength() < minLength) {
                 minIndex = i;
                 minLength = pairs.get(i).getLength();
             }
         }
-
-
-
-        pairs.get(minIndex).connect();
-
-        //В момент соединения проверяем, не останется ли повисших вершин
-        //Обозначаем вершину, в которую пришли из другого кластера как стартовую
-        //Обозначаем вершину, из которой уйдём в другой кластер как финишную
-        //Идём от старта к финишу
-        //Если прошли все вершины кластера, то всё нормально, если не все, значит есть повисшие вершины
-        //Если есть повисшие вершины, тогда инвертируем в кластере порядок обхода
+        return pairs.get(minIndex);
     }
 
     protected void pathNodes(ArrayList<Node> nodes) {
-        if(nodes.size() == 1) {
+        if (nodes.size() == 1) {
             nodes.get(0).setNext(nodes.get(0));
             nodes.get(0).setPrev(nodes.get(0));
         } else {
@@ -255,7 +328,6 @@ public class TSSolverBase implements TSSolver {
                 temp2.setNext(first);
                 first.setPrev(temp2);
             }
-
         }
     }
 
@@ -281,7 +353,27 @@ public class TSSolverBase implements TSSolver {
         reduction(mainCluster);
 
 
-        System.out.println(mainCluster.getAllNodes());
+        //System.out.println(mainCluster.getAllNodes());
+        ArrayList<Node> allNodes = mainCluster.getAllNodes();
+        Node first = allNodes.get(0);
+        Node next1 = first;
+        Node next2;
+        ArrayList<Integer> test = new ArrayList<>();
+        for (int i = 0; i < allNodes.size(); i++) {
+            test.add(0);
+        }
+
+        int length = 0;
+        for (int i = 0; i < allNodes.size(); i++) {
+            test.set((int) next1.getNumber() - 1, 5);
+            next2 = next1.getNext();
+            length += Util.getLength(next1, next2);
+            //System.out.println(next1.getNumber() + " -> " + next2.getNumber() + " = " + Util.getLength(next1, next2));
+            next1 = next2;
+
+        }
+        System.out.println(test);
+        System.out.println(length);
         //System.out.println(mainCluster);
 
 

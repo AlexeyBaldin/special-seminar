@@ -1,5 +1,6 @@
 package travellingsalesman.model;
 
+import java.util.ArrayList;
 import java.util.Objects;
 
 public class Node {
@@ -13,7 +14,45 @@ public class Node {
     protected Node prev;
     protected Node next;
 
-    private boolean fromCluster = false;
+    private boolean start = false;
+    private boolean finish = false;
+
+
+    public void invert() {
+
+        ArrayList<Node> nodes = new ArrayList<>();
+        Node temp = this;
+//        System.out.println("   invert");
+        int a = 0;
+        do {
+//            System.out.println("      while" + this.number + this.next.number);
+//            System.out.println("      " + temp.number);
+//            System.out.println("      " + temp.next.number);
+            nodes.add(temp);
+            temp = temp.next;
+        } while(temp != this);
+
+        nodes.forEach(node -> {
+            Node swap = node.next;
+            node.next = node.prev;
+            node.prev = swap;
+        });
+    }
+    public boolean isStart() {
+        return start;
+    }
+
+    public void setStart(boolean start) {
+        this.start = start;
+    }
+
+    public boolean isFinish() {
+        return finish;
+    }
+
+    public void setFinish(boolean finish) {
+        this.finish = finish;
+    }
 
     public Node getPrev() {
         return prev;
@@ -43,14 +82,6 @@ public class Node {
 
     public boolean isCluster() {
         return false;
-    }
-
-    public boolean isGoFromCluster() {
-        return fromCluster;
-    }
-
-    public void setFromCluster(boolean fromCluster) {
-        this.fromCluster = fromCluster;
     }
 
     public int getDeep() {
