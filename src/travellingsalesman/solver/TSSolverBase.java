@@ -75,15 +75,15 @@ public class TSSolverBase implements TSSolver {
         } else {
             ArrayList<Node> centers = new ArrayList<>();
 
-            while(centers.size() < this.clusterCount) {
+            while(centers.size() < this.clusterCount && nodes.size() > centers.size()) {
                 findCenter(nodes, centers);
             }
 
 
             ArrayList<Node> clustersPreparation = new ArrayList<>();
-            int nodesInOneCluster = nodes.size() % this.clusterCount == 0 ? nodes.size() / this.clusterCount : nodes.size() / this.clusterCount + 1;
+            int nodesInOneCluster = nodes.size() % centers.size() == 0 ? nodes.size() / centers.size() : nodes.size() / centers.size() + 1;
 
-            for (int i = 0; i < this.clusterCount; i++) {
+            for (int i = 0; i < centers.size(); i++) {
                 clustersPreparation.add(new Cluster(centers.get(i)));
             }
 
