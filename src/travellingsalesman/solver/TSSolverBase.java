@@ -14,6 +14,11 @@ public class TSSolverBase implements TSSolver {
     protected final int maxDeep;
     protected final int reductionStopper;
 
+    public TSSolverBase() {
+        this.clusterCount = 4;
+        this.maxDeep = 3;
+        this.reductionStopper = 4;
+    }
     public TSSolverBase(int clusterCount, int maxDeep, int reductionStopper) {
         this.clusterCount = clusterCount;
         this.maxDeep = maxDeep;
@@ -79,7 +84,6 @@ public class TSSolverBase implements TSSolver {
                 findCenter(nodes, centers);
             }
 
-
             ArrayList<Node> clustersPreparation = new ArrayList<>();
             int nodesInOneCluster = nodes.size() % centers.size() == 0 ? nodes.size() / centers.size() : nodes.size() / centers.size() + 1;
 
@@ -89,7 +93,7 @@ public class TSSolverBase implements TSSolver {
 
             ArrayList<Node> nodesWithoutCenters = new ArrayList<>(nodes);
             centers.forEach(nodesWithoutCenters::remove);
-//            nodesWithoutCenters.forEach(System.out::println);
+
             nodesWithoutCenters.forEach(node -> {
                 ArrayList<Double> lengths = new ArrayList<>();
 
@@ -141,35 +145,47 @@ public class TSSolverBase implements TSSolver {
             nodes.forEach(node -> {
                 Cluster cast = (Cluster) node;
 
-                //Соединяем кластеры как вершины
                 pathNodes(cluster.getNodes());
-                //System.out.println(cluster);
 
-                //Спускаемся на следующий уровень
                 reduction(cast);
-
 
                 clusters.add(cast);
 
-                //Соединение вершин в ближайших кластерах
-                //connectClusters(Cluster cluster1, Cluster cluster2)?
-                //Получаем все вершины в обоих кластерах, соединяем две ближайшие через кластеры
-                //cluster.getAllNodes()
-                //Если у вершины предыдущая вершина из другого кластера, значит сначала обходим её кластер, потом из последней идем в следующий
             });
 
 
             connectClusters(clusters);
-//            System.out.println("============");
-//            System.out.println(cluster);
-//            System.out.println("============");
+
 
         } else {
-            //Поиск пути между городами внутри последнего кластера
-            //pathNodes(..)
-
-
             pathNodes(cluster.getNodes());
+        }
+    }
+
+    protected void pathNodes(ArrayList<Node> nodes) {
+        if (nodes.size() == 1) {
+            nodes.get(0).setNext(nodes.get(0));
+            nodes.get(0).setPrev(nodes.get(0));
+        } else {
+
+            Node first = nodes.get(0);
+            ArrayList<Node> tempNodes = new ArrayList<>(nodes);
+            tempNodes.remove(first);
+            int size = tempNodes.size();
+            Node temp1 = first;
+            Node temp2 = null;
+            for (int i = 0; i < size; i++) {
+                temp2 = findNearest(temp1, tempNodes);
+                temp1.setNext(temp2);
+                temp2.setPrev(temp1);
+                temp1 = temp2;
+                tempNodes.remove(temp1);
+            }
+
+            if (temp2 != null) {
+                temp2.setNext(first);
+                first.setPrev(temp2);
+            }
         }
     }
 
@@ -177,16 +193,13 @@ public class TSSolverBase implements TSSolver {
         Cluster temp1 = clusters.get(0);
         Cluster temp2;
 
-        //System.out.println("===========");
         for (int i = 1; i < clusters.size(); i++) {
             temp2 = (Cluster) temp1.getNext();
 
             connectTwoClusters(temp1, temp2);
-            //System.out.println("temp1" + temp1 + "  temp2" + temp2);
 
             temp1 = temp2;
         }
-        //System.out.println("===========");
     }
 
     protected void connectTwoClusters(Cluster cluster1, Cluster cluster2) {
@@ -261,32 +274,6 @@ public class TSSolverBase implements TSSolver {
         return pairs.get(minIndex);
     }
 
-    protected void pathNodes(ArrayList<Node> nodes) {
-        if (nodes.size() == 1) {
-            nodes.get(0).setNext(nodes.get(0));
-            nodes.get(0).setPrev(nodes.get(0));
-        } else {
-
-            Node first = nodes.get(0);
-            ArrayList<Node> tempNodes = new ArrayList<>(nodes);
-            tempNodes.remove(first);
-            int size = tempNodes.size();
-            Node temp1 = first;
-            Node temp2 = null;
-            for (int i = 0; i < size; i++) {
-                temp2 = findNearest(temp1, tempNodes);
-                temp1.setNext(temp2);
-                temp2.setPrev(temp1);
-                temp1 = temp2;
-                tempNodes.remove(temp1);
-            }
-
-            if (temp2 != null) {
-                temp2.setNext(first);
-                first.setPrev(temp2);
-            }
-        }
-    }
 
     protected Node findNearest(Node node, ArrayList<Node> anotherNodes) {
         ArrayList<Double> lengths = new ArrayList<>();
@@ -310,7 +297,6 @@ public class TSSolverBase implements TSSolver {
         reduction(mainCluster);
 
 
-        //System.out.println(mainCluster.getAllNodes());
         ArrayList<Node> allNodes = mainCluster.getAllNodes();
         Node next1 = allNodes.get(0);
         Node next2;
@@ -319,20 +305,49 @@ public class TSSolverBase implements TSSolver {
             test.add(0);
         }
 
+//        if(this instanceof TSSolverMy) {
+//            MyFrame frame = new MyFrame();
+//
+//            Scanner scanner = new Scanner(System.in);
+//            scanner.nextLine();
+//            ArrayList<Long> order = new ArrayList<>();
+//            int length = 0;
+//            for (int i = 0; i <= allNodes.size(); i++) {
+//                test.set((int) next1.getNumber() - 1, 5);
+//                next2 = next1.getNext();
+//                length += Util.getLength(next1, next2);
+//                order.add(next1.getNumber());
+//                frame.paintPath(next1, next2);
+//                System.out.println(next1.getNumber() + " -> " + next2.getNumber());
+//
+//                next1 = next2;
+//            }
+//            scanner.nextLine();
+//            return new TSResult(order, length);
+//        } else {
+//
+//            ArrayList<Long> order = new ArrayList<>();
+//            int length = 0;
+//            for (int i = 0; i < allNodes.size(); i++) {
+//                test.set((int) next1.getNumber() - 1, 5);
+//                next2 = next1.getNext();
+//                length += Util.getLength(next1, next2);
+//                order.add(next1.getNumber());
+//
+//                next1 = next2;
+//            }
+//            return new TSResult(order, length);
+//        }
         ArrayList<Long> order = new ArrayList<>();
         int length = 0;
         for (int i = 0; i < allNodes.size(); i++) {
             test.set((int) next1.getNumber() - 1, 5);
             next2 = next1.getNext();
             length += Util.getLength(next1, next2);
-            //System.out.println(next1.getNumber() + " -> " + next2.getNumber() + " = " + Util.getLength(next1, next2));
             order.add(next1.getNumber());
+
             next1 = next2;
         }
-        //System.out.println(test);
-//        System.out.println(length);
-        //System.out.println(mainCluster);
-
         return new TSResult(order, length);
     }
 }
@@ -352,6 +367,16 @@ class MyFrame extends JFrame {
         setVisible(true);
     }
 
+    public void paintPath(Node node1, Node node2) {
+        Graphics graphics = this.canvas.getGraphics();
+        graphics.setColor(Color.GREEN);
+        graphics.fillOval(((int) node1.getX() / 2) - 5400, ((int) node1.getY() / 2) - 20800 , 5, 5);
+        graphics.fillOval(((int) node2.getX() / 2) - 5400, ((int) node2.getY() / 2)- 20800, 5, 5);
+        graphics.setColor(Color.RED);
+        graphics.fillRect((((int) node2.getX() / 2) - 5400 + (int) node1.getX() / 2 - 5400)/2, (((int) node2.getY() / 2)- 20800 + ((int) node1.getY() / 2) - 20800)/2, 3, 3);
+        graphics.setColor(Color.BLACK);
+        graphics.drawLine((int) node1.getX() / 2 - 5400, (int) node1.getY() / 2 - 20800, (int) node2.getX() / 2 - 5400, (int) node2.getY() / 2 - 20800);
+    }
     public void paintPoint(ArrayList<Node> nodes, Node center) {
         Scanner scanner = new Scanner(System.in);
 

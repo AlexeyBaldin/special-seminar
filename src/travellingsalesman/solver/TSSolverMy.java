@@ -26,7 +26,7 @@ public class TSSolverMy extends TSSolverBase{
             }
 
             ArrayList<Node> clustersPreparation = new ArrayList<>();
-            int nodesInOneCluster = nodes.size() % centers.size() == 0 ? nodes.size() / centers.size() : nodes.size() / centers.size() + 1;
+            //int nodesInOneCluster = nodes.size() % centers.size() == 0 ? nodes.size() / centers.size() : nodes.size() / centers.size() + 1;
 
             for (int i = 0; i < centers.size(); i++) {
                 clustersPreparation.add(new Cluster(centers.get(i)));
@@ -34,7 +34,6 @@ public class TSSolverMy extends TSSolverBase{
 
             ArrayList<Node> nodesWithoutCenters = new ArrayList<>(nodes);
             centers.forEach(nodesWithoutCenters::remove);
-//            nodesWithoutCenters.forEach(System.out::println);
             nodesWithoutCenters.forEach(node -> {
                 ArrayList<Double> lengths = new ArrayList<>();
 

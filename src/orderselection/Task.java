@@ -15,10 +15,28 @@ public class Task {
 
     private final double coefficient;
 
+    private double time = 0;
+
+    public Result getResult() {
+        return result;
+    }
+
+    public double getTime() {
+        return time;
+    }
+
+    public void setTime(double time) {
+        this.time = time;
+    }
 
     public Task(OrderSelectionDataset dataset, OrderSelection solver) {
         this.coefficient = 0;
+
+        this.time = System.nanoTime();
         this.result = solver.solve(dataset.getPerformance(), dataset.getCount(), dataset.getCostIncomes());
+        this.time = System.nanoTime() - this.time;
+        this.time /= 1000000;
+
         this.result.getOrders().sort((o1, o2) -> o1 - o2);
     }
 

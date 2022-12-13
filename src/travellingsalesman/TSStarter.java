@@ -33,9 +33,8 @@ public class TSStarter implements Starter {
         for (TSDataset dataset :
                 datasets) {
             System.out.println(dataset.getFile());
-            TSTask baseTask = new TSTask(dataset, new TSSolverBase(4, 3, 4));
+            TSTask baseTask = new TSTask(dataset, new TSSolverBase());
             double baseCriterion = (baseTask.getLength() - dataset.getOptimum())/dataset.getOptimum();
-
 
 
             TSTask myTask = null;
@@ -44,7 +43,6 @@ public class TSStarter implements Starter {
             double myCriterion = Double.MAX_VALUE;
             for(int i = startClusters; i <= endClusters; i++) {
                 for (int j = startStopper; j <= endStopper; j++) {
-                    System.out.println(i + " " + j);
                     myTask = new TSTask(dataset, new TSSolverMy(i, 3, j));
                     double criterion = (myTask.getLength() - dataset.getOptimum())/dataset.getOptimum();
 

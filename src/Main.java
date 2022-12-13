@@ -1,9 +1,10 @@
 import general.Starter;
+import orderselection.OrderSelectionStarter;
 import travellingsalesman.TSStarter;
 
 public class Main {
     public static void main(String[] args) {
-        Starter starter = new TSStarter();
+        Starter starter = new OrderSelectionStarter();
         starter.start();
     }
 }
