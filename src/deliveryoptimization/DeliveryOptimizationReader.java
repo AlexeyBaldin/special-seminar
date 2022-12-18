@@ -1,6 +1,6 @@
 package deliveryoptimization;
 
-import deliveryoptimization.model.DeliveryOptimizationDataset;
+import deliveryoptimization.model.DODataset;
 import general.AReader;
 import general.Dataset;
 
@@ -17,17 +17,19 @@ public class DeliveryOptimizationReader extends AReader {
             try {
                 Scanner scanner = new Scanner(file);
                 int orders = scanner.nextInt();
-                int[] terms = new int[orders];
-                int[][] timesMatrix = new int[orders + 1][orders + 1];
+                ArrayList<Integer> terms = new ArrayList<>();
+                ArrayList<ArrayList<Integer>> timesMatrix = new ArrayList<>();
                 for(int i = 0; i < orders; i++) {
-                    terms[i] = scanner.nextInt();
+                    terms.add(scanner.nextInt());
                 }
                 for(int i = 0; i <= orders; i++) {
                     for(int j = 0; j <= orders; j++) {
-                        timesMatrix[i][j] = scanner.nextInt();
+                        ArrayList<Integer> row = new ArrayList<>();
+                        row.add(scanner.nextInt());
+                        timesMatrix.add(row);
                     }
                 }
-                datasets.add(new DeliveryOptimizationDataset(orders, terms, timesMatrix, file.toString()));
+                datasets.add(new DODataset(orders, terms, timesMatrix, file.toString()));
             } catch (FileNotFoundException e) {
                 throw new RuntimeException(e);
             }
