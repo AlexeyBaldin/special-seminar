@@ -19,7 +19,7 @@ public class DeliveryOptimizationStarter implements Starter {
 
     @Override
     public void start() {
-        DODataset dataset = datasets.get(2);
+        DODataset dataset = datasets.get(0);
 
         SolverBase solverBase = new SolverBase(dataset);
         DOResult resultBase = solverBase.solve();

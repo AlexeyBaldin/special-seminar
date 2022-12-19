@@ -2,6 +2,7 @@ package deliveryoptimization.solver;
 
 import deliveryoptimization.model.DODataset;
 import deliveryoptimization.model.DOResult;
+import javafx.util.Pair;
 
 import java.util.ArrayList;
 
@@ -51,7 +52,8 @@ public class SolverBase implements DOSolver{
         }
     }
 
-    protected int lower(ArrayList<Integer> v) {
+
+    protected ArrayList<Integer> getBeta(ArrayList<Integer> v) {
         ArrayList<Integer> beta = new ArrayList<>();
         for (int i = 1; i <= n; i++) {
             beta.add(i);
@@ -60,11 +62,93 @@ public class SolverBase implements DOSolver{
                 v) {
             beta.remove(num);
         }
+        return beta;
+    }
+
+    protected Pair<Integer, ArrayList<Integer>> getPathAndZ(ArrayList<Integer> v) {
+        ArrayList<Integer> z = new ArrayList<>();
+        for (int i = 0; i <= n; i++) {
+            z.add(0);
+        }
+
+        int path = tIJ.get(0).get(v.get(0));
+        z.set(v.get(0), path);
+        for(int i = 1; i < v.size(); i++) {
+            path += tIJ.get(v.get(i-1)).get(v.get(i));
+            z.set(v.get(i), path);
+        }
+
+        return new Pair<>(path, z);
+    }
+
+    protected int estimate(ArrayList<Integer> z) {
+        int estimate = 0;
+        for(int i = 0; i < n; i++) {
+            if(z.get(i+1) > tD.get(i)) {
+                estimate++;
+            }
+        }
+        return estimate;
+    }
+    protected int lower(ArrayList<Integer> v) {
+        ArrayList<Integer> beta = getBeta(v);
+
+        Pair<Integer, ArrayList<Integer>> pathAndZ = getPathAndZ(v);
+        int path = pathAndZ.getKey();
+        ArrayList<Integer> z = pathAndZ.getValue();
+
+        for (Integer b : beta) {
+            z.set(b, path + tIJ.get(v.get(v.size() - 1)).get(b));
+        }
+
+//        System.out.println(v);
+//        System.out.println(beta);
+//        System.out.println(z);
+
+        return estimate(z);
+    }
+
+    protected int upper(ArrayList<Integer> v) {
+        ArrayList<Integer> beta = getBeta(v);
+
+        Pair<Integer, ArrayList<Integer>> pathAndZ = getPathAndZ(v);
+        int path = pathAndZ.getKey();
+        ArrayList<Integer> z = pathAndZ.getValue();
+
+        int k = v.size();
+
+        while(k != n) {
 
 
+            int min = Integer.MAX_VALUE;
+            Integer minIndex = -1;
+            int pathB = 0;
+            for (Integer b :
+                    beta) {
+                int tempPath = path + tIJ.get(v.get(v.size() - 1)).get(b);
+                int tempMin = tD.get(b-1) - tempPath;
+                if(tempMin < 0) {
+                    continue;
+                }
+                if(tempMin < min) {
+                    min = tempMin;
+                    minIndex = b;
+                    pathB = tempPath;
+                }
+            }
 
+            if(minIndex != -1) {
+                z.set(minIndex, pathB);
+                beta.remove(minIndex);
+                path = pathB;
+            }
+            k++;
+        }
 
-        return 0;
+//        System.out.println(beta);
+//        System.out.println(z);
+
+        return estimate(z) + beta.size();
     }
 
     protected ArrayList<Integer> branchAndBound() {
@@ -85,7 +169,12 @@ public class SolverBase implements DOSolver{
         ArrayList<Integer> order = branchAndBound();
 
 
+        ArrayList<Integer> test = new ArrayList<>();
+        test.add(1);
 
+        System.out.println(tIJ);
+
+        upper(test);
 
 
 

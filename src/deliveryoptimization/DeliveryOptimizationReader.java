@@ -23,11 +23,11 @@ public class DeliveryOptimizationReader extends AReader {
                     terms.add(scanner.nextInt());
                 }
                 for(int i = 0; i <= orders; i++) {
+                    ArrayList<Integer> row = new ArrayList<>();
                     for(int j = 0; j <= orders; j++) {
-                        ArrayList<Integer> row = new ArrayList<>();
                         row.add(scanner.nextInt());
-                        timesMatrix.add(row);
                     }
+                    timesMatrix.add(row);
                 }
                 datasets.add(new DODataset(orders, terms, timesMatrix, file.toString()));
             } catch (FileNotFoundException e) {
